@@ -1,0 +1,20 @@
+commit_msg_file="$1"
+commit_msg=$(head -n1 "$commit_msg_file")
+
+commit_regex="^(feat|fix|chore|docs|test|style|refactor|perf|build|ci|revert)(\(.+?\))?: .{1,}$"
+commit_type_examples="feat|fix|chore|docs|test|style|refactor|perf|build|ci|revert"
+
+if ! echo "$commit_msg" | grep -qE "$commit_regex"; then
+    echo "❌ Commit rejected: The message does not follow the Conventional Commits standard." >&2
+    echo "📌 Expected format: 'type(optional scope): description'" >&2
+    echo "📚 Valid commit types: : [$commit_type_examples]" >&2
+    echo "🔍 Example: 'feat(auth): add Google login'" >&2
+    exit 1
+fi
+
+max_length=88
+if [ ${#commit_msg} -gt $max_length ]; then
+    echo "❌ Commit rejected: The message is too long (${#commit_msg}/$max_length characters)." >&2
+    echo "✂️  Please shorten it to fit within $max_length characters." >&2
+    exit 1
+fi
