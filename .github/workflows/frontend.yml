@@ -1,0 +1,30 @@
+name: '🐢 Frontend'
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛬
+        uses: actions/checkout@v4 
+
+      - name: Setup Node ⚙️
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install General and Husky dependencies (Linter and Conventional Commits) 🔥
+        run: |
+          cd frontend
+          npm install
+          npm run prepare
+
+      - name: Build typescript 📦
+        run: |
+          cd frontend
+          npm run build
+
