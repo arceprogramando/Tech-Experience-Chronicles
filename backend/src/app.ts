@@ -18,7 +18,7 @@ const data = {
   address: '123 Main St',
 };
 
-app.get('/', (req: Request, res: Response) => {
+app.get('/', (_req: Request, res: Response) => {
   res.json(data);
 });
 
