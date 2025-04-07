@@ -7,14 +7,10 @@ import jwt from 'jsonwebtoken';
 class AuthController {
   static async registerUser(req: Request, res: Response): Promise<void> {
     try {
-      const { email, username, password } = req.body;
+      const { email, password } = req.body;
 
       if (!email) {
         res.status(400).json({ message: 'Email is required' });
-        return;
-      }
-      if (!username) {
-        res.status(400).json({ message: 'Username is required' });
         return;
       }
 
@@ -42,7 +38,7 @@ class AuthController {
 
       const hashedPassword = await argon2.hash(password);
 
-      const existingUser = await UserModel.findOne({ username });
+      const existingUser = await UserModel.findOne({ email });
       if (existingUser) {
         res.status(409).json({ message: 'the user already exists' });
         return;
@@ -50,7 +46,6 @@ class AuthController {
 
       await UserModel.create({
         email,
-        username,
         password: hashedPassword,
       });
 
@@ -64,23 +59,23 @@ class AuthController {
 
   static async loginUser(req: Request, res: Response): Promise<void> {
     try {
-      const { username, password } = req.body;
-
-      if (!username) {
-        res.status(400).json({ message: 'Username is required' });
-        return;
-      }
+      const { email, password } = req.body;
 
       if (!password) {
         res.status(400).json({ message: 'Password is required' });
         return;
       }
+      if (!email) {
+        res.status(400).json({ message: 'Email is required' });
+        return;
+      }
 
-      const findUser = await UserModel.findOne({ username });
+      const findUser = await UserModel.findOne({ email });
       if (!findUser) {
         res.status(404).json({ message: 'User not found' });
         return;
       }
+      console.log('🚀 ~ AuthController ~ loginUser ~ findUser:', findUser);
 
       const validPassword = await argon2.verify(findUser.password, password);
       console.log(
@@ -92,8 +87,16 @@ class AuthController {
         return;
       }
 
-      const token = jwt.sign({ username }, JWT_SECRET_KEY, { expiresIn: '1h' });
-      res.status(200).json({ message: 'Login successful', token });
+      const token = jwt.sign({ email }, JWT_SECRET_KEY, { expiresIn: '1h' });
+
+      res.cookie('token', token, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'strict',
+        maxAge: 3600000,
+      });
+
+      res.status(200).json({ message: 'Login successful' });
     } catch (error) {
       res.status(500).json({
         message: error instanceof Error ? error.message : 'Unknown error',
