@@ -1,21 +1,20 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import {JSX} from 'react';
+import { JSX } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-const loginSchema = z
-  .object({
-    email: z.string().email({ message: 'El email ingresado no es válido.' }),
-    password: z
-      .string()
-      .min(10, 'La contraseña deberia contener al menos 10 caracteres.'),
-  });
+const loginSchema = z.object({
+  email: z.string().email({ message: 'El email ingresado no es válido.' }),
+  password: z
+    .string()
+    .min(10, 'La contraseña deberia contener al menos 10 caracteres.'),
+});
 
 export type TSignUpSchema = z.infer<typeof loginSchema>;
 
-export default function LoginForm() :JSX.Element{
+export default function LoginForm(): JSX.Element {
   const {
     register,
     handleSubmit,
@@ -25,38 +24,39 @@ export default function LoginForm() :JSX.Element{
     resolver: zodResolver(loginSchema),
   });
 
-  const onSubmit = async (data: TSignUpSchema):Promise<void> => {
-    const response = await fetch('/api/login', {
-      method: 'POST',
-      body: JSON.stringify(data),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-    const responseData = await response.json();
-    if (!response.ok) {
-      alert('La respuesta del formulario fallo.');
-      return;
-    }
+  const onSubmit = async (data: TSignUpSchema): Promise<void> => {
+    try {
+      const response = await fetch('http://localhost:3000/auth/login', {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
 
-    if (responseData.errors) {
-      const errors = responseData.errors;
-
-      if (errors.email) {
-        setError('email', {
-          type: 'server',
-          message: errors.email,
-        });
-      } else if (errors.password) {
-        setError('password', {
-          type: 'server',
-          message: errors.password,
-        });
-      } else {
-        alert('Algo salio mal');
+      if (!response.ok) {
+        const errorData = await response.json();
+        if (errorData.errors) {
+          Object.entries(errorData.errors).forEach(
+            ([key, message]: [string, unknown]): void => {
+              setError(key as keyof TSignUpSchema, {
+                type: 'server',
+                message: message as string,
+              });
+            }
+          );
+        } else {
+          alert(errorData.message || 'Algo salió mal.');
+        }
+        return;
       }
-    }
 
+      alert('Inicio de sesión exitoso');
+      window.location.href = '/dashboard';
+    } catch (error) {
+      console.error('Error en el login:', error);
+      alert('Error al conectar con el servidor.');
+    }
   };
 
   return (
