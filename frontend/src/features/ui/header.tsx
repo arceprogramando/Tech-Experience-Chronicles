@@ -11,7 +11,7 @@ export default function Header(): ReactElement {
             <span className="text-violet-500">Tech </span>Tests
           </Link>
         </h1>
-        <Link href="/explore" className="text-base font-medium">
+        <Link href="/technical-tests" className="text-base font-medium">
           Explorar
         </Link>
       </div>
