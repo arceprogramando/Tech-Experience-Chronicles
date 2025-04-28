@@ -4,8 +4,8 @@ import Link from 'next/link';
 
 export default function Header(): ReactElement {
   return (
-    <header className="container flex items-center justify-between gap-4 py-2 text-black">
-      <div className="flex items-center gap-8">
+    <header className="container flex items-end justify-between  gap-4  text-black">
+      <div className="flex items-end gap-4">
         <h1 className="font-bold text-2xl">
           <Link href="/">
             <span className="text-violet-500">Tech </span>Tests

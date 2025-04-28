@@ -11,7 +11,10 @@ export default function Home(): ReactElement {
         </p>
       </section>
       <div className="flex justify-center gap-4">
-        <Link href={'/create-test'} className="py-2 px-4 bg-violet rounded-lg">
+        <Link
+          href={'/create-test'}
+          className="py-2 px-4 bg-violet text-white rounded-lg"
+        >
           Crear Prueba técnica
         </Link>
         <Link
